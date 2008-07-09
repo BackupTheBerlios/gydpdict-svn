@@ -319,29 +319,34 @@ static gboolean gydp_dict_sap_text(GydpDict *dict, guint n, GtkTextBuffer *buffe
 	return TRUE;
 }
 
+/* internal function to find first compatible item */
+static inline gint gydp_str_compatible(const gchar *s1, const gchar *s2, guint size);
+/* internal function to remove some characters during search */
+static inline void gydp_str_compress(gchar *str);
+
+/* internal function to find first compatible item */
+static inline gint gydp_str_compatible(const gchar *s1, const gchar *s2, guint size) {
+	guint i = 0;
+
+	for(; i < size; ++i)
+		if( s1[i] != s2[i] )
+			return s1[i] > s2[i]? i: -i;
+	return size;
+}
+
+/* internal function to remove some characters during search */
+static inline void gydp_str_compress(gchar *str) {
+	for(gchar *s = str; *s; ++s)
+		switch( *s ) {
+		case '/':
+		case '.':
+		case ' ': break;
+		case '&': *(str++) = 'a'; break;
+		default:  *(str++) = *s; break;
+		}
+}
+
 static guint gydp_dict_sap_find(GydpDict *dict, const gchar *word) {
-	/* internal function to find first compatible item */
-	inline gint gydp_str_compatible(const gchar *s1, const gchar *s2, guint size) {
-		guint i = 0;
-
-		for(; i < size; ++i)
-			if( s1[i] != s2[i] )
-				return s1[i] > s2[i]? i: -i;
-		return size;
-	}
-
-	/* internal function to remove some characters during search */
-	inline void gydp_str_compress(gchar *str) {
-		for(gchar *s = str; *s; ++s)
-			switch( *s ) {
-			case '/':
-			case '.':
-			case ' ': break;
-			case '&': *(str++) = 'a'; break;
-			default:  *(str++) = *s; break;
-			}
-	}
-
 	GydpDictSAP *self = GYDP_DICT_SAP(dict);
 	gint length, cmp, cmp_prev = 0;
 	gchar *find_case, *word_case;
