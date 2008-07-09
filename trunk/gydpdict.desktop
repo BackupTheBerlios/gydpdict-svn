@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=gydpdict
+GenericName=Dictionary
+Comment=
+TryExec=gydpdict
+Exec=gydpdict
+Icon=accessories-dictionary
+Type=Application
+Category=GTK;Utility;Languages
+StartupNotify=true
+

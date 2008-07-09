@@ -1,0 +1,5 @@
+0.1.0
+=====
+- support for ydp, sap dictionary engines
+- simple word searching
+- on-the-fly engine change
