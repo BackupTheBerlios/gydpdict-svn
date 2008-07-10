@@ -230,6 +230,8 @@ static void gydp_window_init(GydpWindow *self) {
 				"weight", PANGO_WEIGHT_BOLD, NULL);
 		gtk_text_buffer_create_tag(buffer, GYDP_TAG_ITALIC,
 				"style", PANGO_STYLE_ITALIC, NULL);
+		gtk_text_buffer_create_tag(buffer, GYDP_TAG_UNDERLINE,
+				"underline", PANGO_UNDERLINE_SINGLE, "underline-set", TRUE, NULL);
 		gtk_text_buffer_create_tag(buffer, GYDP_TAG_ALIGN_CENTER,
 				"justification", GTK_JUSTIFY_CENTER, "justification-set", TRUE, NULL);
 		gtk_text_buffer_create_tag(buffer, GYDP_TAG_ALIGN_LEFT,
@@ -408,6 +410,22 @@ static void gydp_window_dict_toggled(GtkCheckMenuItem *item, gpointer data) {
 	if( !gtk_check_menu_item_get_active(item) )
 		return;
 
+	{ /* clear definition */
+		GtkTextView *view = GTK_TEXT_VIEW(window->definition);
+		GtkTextBuffer *buffer = gtk_text_view_get_buffer(view);
+		GtkTextIter start, end;
+
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		gtk_text_buffer_delete(buffer, &start, &end);
+
+		/* clear possible custom view options */
+		gtk_text_view_set_pixels_above_lines(view, 0);
+	}
+
+	/* clear word */
+	gtk_editable_delete_text(GTK_EDITABLE(window->word), 0, -1);
+
 	/* get dictionary language */
 	const gchar *label = gtk_label_get_text(
 			GTK_LABEL(gtk_bin_get_child(GTK_BIN(item))));
@@ -416,23 +434,21 @@ static void gydp_window_dict_toggled(GtkCheckMenuItem *item, gpointer data) {
 	/* get data dirs */
 	gchar **paths = gydp_data_dirs(dict->engine);
 
-	if( !gydp_dict_load(dict, paths, lang) )
-		g_printerr("Failed to load dictionary.\n");
+	/* try to load dictionary */
+	if( !gydp_dict_load(dict, paths, lang) ) {
+		GtkTextView *view = GTK_TEXT_VIEW(window->definition);
+		GtkTextBuffer *buffer = gtk_text_view_get_buffer(view);
+		GtkTextIter it;
+
+		gtk_text_view_set_pixels_above_lines(view, GTK_WIDGET(view)->allocation.height/2);
+		gtk_text_buffer_get_start_iter(buffer, &it);
+		gtk_text_buffer_insert_with_tags_by_name(buffer, &it,
+			"Failed to load dictionary", -1,
+			GYDP_TAG_UNDERLINE, GYDP_TAG_ALIGN_CENTER, NULL);
+	}
 
 	/* free temporary data */
 	g_strfreev(paths);
-
-	{ /* clear definition */
-		GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(window->definition));
-		GtkTextIter start, end;
-
-		gtk_text_buffer_get_start_iter(buffer, &start);
-		gtk_text_buffer_get_end_iter(buffer, &end);
-		gtk_text_buffer_delete(buffer, &start, &end);
-	}
-
-	/* clear word */
-	gtk_editable_delete_text(GTK_EDITABLE(window->word), 0, -1);
 
 	{ /* initialize scrollbar */
 		GtkObject *adjustment = gtk_adjustment_new(0, 0, gydp_dict_size(dict), 1, 1, 1);
@@ -849,10 +865,13 @@ static void gydp_window_words_update(GydpWindow *self) {
 		gint id = i + (gint)position;
 		const char *word = gydp_dict_word(dict, id);
 
-		gtk_list_store_append(GTK_LIST_STORE(store), &it);
-		gtk_list_store_set(GTK_LIST_STORE(store), &it,
-				COLUMN_WORD, word,
-				COLUMN_ID, id, -1);
+		/* add only available words */
+		if( word != NULL ) {
+			gtk_list_store_append(GTK_LIST_STORE(store), &it);
+			gtk_list_store_set(GTK_LIST_STORE(store), &it,
+					COLUMN_WORD, word,
+					COLUMN_ID, id, -1);
+		}
 	}
 
 	/* adjust scroll (very important rounding) */

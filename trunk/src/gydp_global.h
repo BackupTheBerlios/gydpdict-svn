@@ -40,6 +40,7 @@ G_BEGIN_DECLS
 #define GYDP_TAG_ALIGN_RIGHT   "right"
 #define GYDP_TAG_BOLD          "bold"
 #define GYDP_TAG_ITALIC        "italic"
+#define GYDP_TAG_UNDERLINE     "under"
 #define GYDP_TAG_SCRIPT_SUPER  "super"
 #define GYDP_TAG_SCRIPT_SUB    "sub"
 #define GYDP_TAG_SCRIPT_NORMAL "normal"

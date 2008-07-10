@@ -179,8 +179,15 @@ static gboolean gydp_dict_ydp_load(GydpDict *dict, gchar **locations, GydpLang l
 					(index = gydp_file_open(*locations, filename[1])) != NULL )
 				break;
 
-			g_input_stream_close(stream, NULL, NULL); stream = NULL;
-			g_input_stream_close(index, NULL, NULL); index = NULL;
+			if( stream != NULL ) {
+				g_input_stream_close(stream, NULL, NULL);
+				stream = NULL;
+			}
+
+			if( index != NULL ) {
+				g_input_stream_close(index, NULL, NULL);
+				index = NULL;
+			}
 		}
 
 		/* detect failure and save data stream */
@@ -243,14 +250,14 @@ static gboolean gydp_dict_ydp_load(GydpDict *dict, gchar **locations, GydpLang l
 	}
 
 	g_string_free(buffer, TRUE);
-	g_input_stream_close(index, NULL, NULL);
+	if( index ) g_input_stream_close(index, NULL, NULL);
 
 	/* check if import was correct */
 	if( !if_ok || if_error ) {
 		gydp_dict_ydp_unload(self);
 
 		if( *locations == NULL )
-			g_printerr("Error loading '%s' dictionary by YDP engine. Missing dictionary files.\n",
+			g_printerr("Error loading '%s' dictionary by YDP engine. Missing dictionary file(s).\n",
 					gydp_lang_value_to_nick(lang));
 		else
 			g_printerr("Error loading '%s' dictionary by YDP engine at '%s'.\n",
