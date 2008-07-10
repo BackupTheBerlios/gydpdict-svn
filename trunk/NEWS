@@ -1,4 +1,11 @@
-0.1.0
+0.1.2 10/07/2008
+=====
+- loading fixes
+- desktop file fix
+0.1.1 08/07/2008
+=====
+- fix compilation issues (gcc 4.3)
+0.1.0 08/07/2008
 =====
 - support for ydp, sap dictionary engines
 - simple word searching
