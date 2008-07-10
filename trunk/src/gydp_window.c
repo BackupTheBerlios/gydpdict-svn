@@ -171,6 +171,9 @@ static void gydp_window_init(GydpWindow *self) {
 	 * customize self
 	 */
 
+	/* set window title */
+	gtk_window_set_title(GTK_WINDOW(self), "Dictionary");
+
 	/*
 	 * input widgets
 	 */
