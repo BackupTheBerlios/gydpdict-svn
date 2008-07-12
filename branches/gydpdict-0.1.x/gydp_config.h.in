@@ -1,0 +1,10 @@
+#ifndef __GYDP_CONFIG_H__
+#define __GYDP_CONFIG_H__
+
+/* auto generated header from build process. */
+
+/* Version number.  */
+#define GYDP_VERSION  "${GYDP_VERSION}"
+
+#endif /* __GYDP_CONFIG_H__ */
+
