@@ -67,6 +67,9 @@ const gchar *gydp_dict_word    (GydpDict *dict, guint n);
 gboolean     gydp_dict_text    (GydpDict *dict, guint n, GtkTextBuffer *buffer);
 guint        gydp_dict_find    (GydpDict *dict, const gchar *word);
 
+/* default implementations for virual functions */
+guint        gydp_dict_find_f  (GydpDict *dict, const gchar *word);
+
 G_END_DECLS
 
 #endif /* __GYDP_DICT_H__ */

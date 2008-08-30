@@ -63,7 +63,6 @@ static gboolean     gydp_dict_sap_lang(GydpDict *dict, GydpLang lang);
 static guint        gydp_dict_sap_size(GydpDict *dict);
 static const gchar *gydp_dict_sap_word(GydpDict *dict, guint n);
 static gboolean     gydp_dict_sap_text(GydpDict *dict, guint n, GtkTextBuffer *buffer);
-static guint        gydp_dict_sap_find(GydpDict *dict, const gchar *word);
 
 /* private utility functions */
 static void         gydp_dict_sap_unload(GydpDictSAP *dict);
@@ -115,7 +114,7 @@ static void gydp_dict_sap_class_init(GydpDictSAPClass *klass) {
 	dict_klass->size = gydp_dict_sap_size;
 	dict_klass->word = gydp_dict_sap_word;
 	dict_klass->text = gydp_dict_sap_text;
-	dict_klass->find = gydp_dict_sap_find;
+	dict_klass->find = gydp_dict_find_f;
 }
 
 static GObject *gydp_dict_sap_constructor(GType type, guint n, GObjectConstructParam *properties) {
@@ -317,75 +316,6 @@ static gboolean gydp_dict_sap_text(GydpDict *dict, guint n, GtkTextBuffer *buffe
 	gydp_convert_sap_widget(self->word[n].str, text, self->word[n].length, buffer);
 
 	return TRUE;
-}
-
-/* internal function to find first compatible item */
-static inline gint gydp_str_compatible(const gchar *s1, const gchar *s2, guint size);
-/* internal function to remove some characters during search */
-static inline void gydp_str_compress(gchar *str);
-
-/* internal function to find first compatible item */
-static inline gint gydp_str_compatible(const gchar *s1, const gchar *s2, guint size) {
-	guint i = 0;
-
-	for(; i < size; ++i)
-		if( s1[i] != s2[i] )
-			return s1[i] > s2[i]? i: -i;
-	return size;
-}
-
-/* internal function to remove some characters during search */
-static inline void gydp_str_compress(gchar *str) {
-	for(gchar *s = str; *s; ++s)
-		switch( *s ) {
-		case '/':
-		case '.':
-		case ' ': break;
-		case '&': *(str++) = 'a'; break;
-		default:  *(str++) = *s; break;
-		}
-}
-
-static guint gydp_dict_sap_find(GydpDict *dict, const gchar *word) {
-	GydpDictSAP *self = GYDP_DICT_SAP(dict);
-	gint length, cmp, cmp_prev = 0;
-	gchar *find_case, *word_case;
-	const gchar *find;
-
-	if( !self->words )
-		return 0;
-
-	/* get word */
-	word_case = g_utf8_casefold(word, -1);
-	gydp_str_compress(word_case);
-	length = strlen(word_case);
-
-	/* check for string length */
-	if( length == 0 ) {
-		g_free(word_case);
-		return 0;
-	}
-
-	/* find corresponding element */
-	for(guint i = 0; i < self->words; ++i, cmp_prev = cmp) {
-		find = self->word[i].str;
-
-		/* get comparison */
-		find_case = g_utf8_casefold(find, -1);
-		gydp_str_compress(find_case);
-		cmp = gydp_str_compatible(word_case, find_case, length);
-		g_free(find_case);
-
-		/* completely compatible item found */
-		if( cmp == length )
-			return i;
-
-		/* previous item is more compatible */
-		if( cmp < cmp_prev )
-			return i - 1;
-	}
-
-	return self->words - 1;
 }
 
 static void gydp_dict_sap_unload(GydpDictSAP *dict) {

@@ -349,8 +349,11 @@ static void gydp_window_init(GydpWindow *self) {
 	/* update current default dictionary (initialize view) */
 	GydpDict *dict = g_object_get_data(G_OBJECT(gydp_app()), GYDP_APP_DICT);
 	const gchar *nick = gydp_engine_value_to_nick(dict->engine);
-	const gchar *lang = gydp_conf_get_string(config, nick, "lang");
+	gchar *lang = gydp_conf_get_string(config, nick, "lang");
 	gydp_window_dict_update(self, gydp_lang_name_to_value(lang));
+
+	/* free temporary string */
+	g_free(lang);
 
 	/* set initial focus on the words */
 	gtk_widget_grab_focus(self->words);

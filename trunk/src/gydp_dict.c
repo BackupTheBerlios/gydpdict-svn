@@ -21,6 +21,8 @@
 #include "gydp_conf.h"
 #include "gydp_app.h"
 
+#include <string.h>
+
 /* private methods */
 static void gydp_dict_class_init(GydpDictClass *klass);
 
@@ -77,5 +79,84 @@ gboolean gydp_dict_text(GydpDict *dict, guint n, GtkTextBuffer *buffer) {
 
 guint gydp_dict_find(GydpDict *dict, const gchar *word) {
 	return GYDP_DICT_GET_CLASS(dict)->find(dict, word);
+}
+
+gchar *gydp_str_process(const gchar *str) {
+	gchar *result, *begin;
+
+	/* process case */
+	begin = g_utf8_casefold(str, -1);
+
+	/* remove some characters */
+	for(result = begin, str = begin; *str; ++str)
+		switch( *str ) {
+		case '/':
+		case '.':
+		case '-':
+		case ' ': break;
+		case '&': *(result++) = 'a'; break;
+		default:  *(result++) = *str; break;
+	}
+	/* finalize copy */
+	*result = '\0';
+
+	/* normalize characters */
+	result = g_utf8_normalize(begin, -1, G_NORMALIZE_DEFAULT);
+
+	/* free temporary string */
+	g_free(begin);
+
+	return result;
+}
+
+guint gydp_dict_find_f(GydpDict *dict, const gchar *word) {
+  GydpDictClass *klass = GYDP_DICT_GET_CLASS(dict);
+	gint length, i = 0, prev = 0;
+	guint pos = 0, size, n;
+	gchar *find;
+
+  /* validate size */
+	if( (size = klass->size(dict)) == 0 )
+		return 0;
+
+	/* process word for comprison */
+	word = gydp_str_process(word);
+	length = strlen(word);
+
+	/* check for string length */
+	if( length == 0 ) {
+		g_free((gchar *)word);
+		return pos;
+	}
+
+	for(n = 0; n < size; ++n, prev = i) {
+		/* get word */
+		find = gydp_str_process(klass->word(dict, n));
+
+		/* compare */
+		for(i = 0; i < length; ++i)
+			if( word[i] != find[i] )
+				break;
+
+		/* free temporart data */
+		g_free(find);
+
+		/* completely compatible item found */
+		if( i == length ) {
+			pos = n;
+			break;
+		}
+
+		/* previous item is more compatible */
+		if( i < prev ) {
+			pos = n - 1;
+			break;
+		}
+	}
+
+	/* free temporart data */
+	g_free((gchar *)word);
+
+	return n < size? pos: size - 1;
 }
 
