@@ -1,6 +1,9 @@
 PROJECT(gydpdict)
 SET(GYDP_VERSION "0.2.0")
 
+# default build type
+SET(CMAKE_BUILD_TYPE "Release")
+
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE(PkgConfig)
 
