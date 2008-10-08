@@ -1,9 +1,6 @@
 PROJECT(gydpdict)
 SET(GYDP_VERSION "0.2.0")
 
-# default build type
-SET(CMAKE_BUILD_TYPE "Release")
-
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE(PkgConfig)
 
@@ -13,10 +10,9 @@ CHECK_PKG_CONFIG_PACKAGE(gio-2.0 2.16)
 CHECK_PKG_CONFIG_PACKAGE(gtk+-2.0 2.12)
 
 # compilation flags
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-SET(CMAKE_C_FLAGS_DEPEND "${glib-2.0_CFLAGS} ${gio-2.0_CFLAGS} ${gtk+-2.0_CFLAGS}")
-SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_FLAGS_DEPEND}")
-SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra ${CMAKE_C_FLAGS_DEPEND}")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 ${glib-2.0_CFLAGS} ${gio-2.0_CFLAGS} ${gtk+-2.0_CFLAGS}")
+SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Wextra")
 
 # configuration file
 SET(GYDP_CONFIG ${PROJECT_BINARY_DIR}/gydp_config.h)
@@ -24,7 +20,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/gydp_config.h.in "${GYDP_CONFIG}" ESC
 
 # sources
 ADD_EXECUTABLE(gydpdict src/main.c src/gydp_global.c src/gydp_util.c src/gydp_app.c src/gydp_conf.c
-	src/gydp_window.c
+	src/gydp_window.c src/gydp_list_view.c src/gydp_list_data.c
 	src/gydp_dict.c src/gydp_dict_ydp.c src/gydp_dict_sap.c
 	src/gydp_convert_ydp.c src/gydp_convert_sap.c)
 

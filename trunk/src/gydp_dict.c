@@ -18,13 +18,19 @@
  */
 
 #include "gydp_dict.h"
+#include "gydp_list_data.h"
 #include "gydp_conf.h"
 #include "gydp_app.h"
 
 #include <string.h>
 
 /* private methods */
-static void gydp_dict_class_init(GydpDictClass *klass);
+static void gydp_dict_class_init          (GydpDictClass *klass);
+static void gydp_dict_list_data_iface_init(GydpListDataIface *iface);
+
+/* private interface callbacks */
+static guint        gydp_dict_list_data_iface_get_items(GydpListData *list_data);
+static const gchar *gydp_dict_list_data_iface_get_item (GydpListData *list_data, guint n);
 
 GType gydp_dict_get_type() {
 	static GType type = G_TYPE_INVALID;
@@ -38,9 +44,16 @@ GType gydp_dict_get_type() {
 			NULL,                                         /* instance init */
 			NULL,                                         /* GValue table */
 		};
+		static const GInterfaceInfo list_data_info = {
+			(GInterfaceInitFunc) gydp_dict_list_data_iface_init, /* iface init */
+			(GInterfaceFinalizeFunc) NULL,                       /* iface finalize */
+			NULL                                                 /* iface data */
+		};
 
 		type = g_type_register_static(G_TYPE_OBJECT, "GydpDict",
 				&info, G_TYPE_FLAG_ABSTRACT);
+		g_type_add_interface_static(type, GYDP_TYPE_LIST_DATA,
+				&list_data_info);
 	}
 
 	return type;
@@ -55,6 +68,21 @@ static void gydp_dict_class_init(GydpDictClass *klass) {
 	klass->word = NULL;
 	klass->text = NULL;
 	klass->find = NULL;
+}
+
+static void gydp_dict_list_data_iface_init(GydpListDataIface *iface) {
+	iface->get_item = gydp_dict_list_data_iface_get_item;
+	iface->get_items = gydp_dict_list_data_iface_get_items;
+}
+
+static guint gydp_dict_list_data_iface_get_items(GydpListData *list_data) {
+	GydpDict *dict = GYDP_DICT(list_data);
+	return GYDP_DICT_GET_CLASS(dict)->size(dict);
+}
+
+static const gchar *gydp_dict_list_data_iface_get_item(GydpListData *list_data, guint n) {
+	GydpDict *dict = GYDP_DICT(list_data);
+	return GYDP_DICT_GET_CLASS(dict)->word(dict, n);
 }
 
 gboolean gydp_dict_load(GydpDict *dict, gchar **locations, GydpLang lang) {
