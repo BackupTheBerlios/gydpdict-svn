@@ -1,3 +1,5 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4.8)
+
 PROJECT(gydpdict)
 SET(GYDP_VERSION "0.2.0")
 
@@ -28,7 +30,7 @@ ADD_EXECUTABLE(gydpdict src/main.c src/gydp_global.c src/gydp_util.c src/gydp_ap
 INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
 TARGET_LINK_LIBRARIES(gydpdict ${glib-2.0_LIBS} ${gio-2.0_LIBS} ${gtk+-2.0_LIBS})
 SET_TARGET_PROPERTIES(gydpdict PROPERTIES
-	LINK_FLAGS "-Wl,--as-needed -Wl,-O1"
+	LINK_FLAGS "-Wl,-O1 -Wl,--as-needed"
 	DEFINE_SYMBOL G_LOG_DOMAIN=\\"gydpdict\\"
 )
 
