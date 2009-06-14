@@ -94,19 +94,36 @@ gchar **gydp_data_dirs(GydpEngine engine) {
 	const guint size = g_strv_length((gchar **)global);
 
 	/* extract local path */
+	const gchar *local = g_get_user_data_dir();
+
+	/* extract local path */
 	GydpConf *config = g_object_get_data(G_OBJECT(gydp_app()), GYDP_APP_CONF);
 	const gchar *nick = gydp_engine_value_to_nick(engine);
-	gchar *local = gydp_conf_get_string(config, nick, "path");
+	gchar *user = gydp_conf_get_string(config, nick, "path");
 
 	/* allocate space for data dirs */
-	gchar **dirs = g_malloc0((size + 2)*sizeof(gchar *));
+	gchar **dirs = g_malloc0((size + 3)*sizeof(gchar *));
 
-	/* local dirs have preference */
-	dirs[0] = local;
+	/* copy user dir
+	 * NOTE: user dir has highest priority */
+	if (g_path_is_absolute(user))
+		dirs[0] = user;
+	else {
+		const gchar *home = g_get_home_dir();
+		dirs[0] = g_build_filename(home, user, NULL);
 
-	/* copy global dirs */
+		/* free local string */
+		g_free(user);
+	}
+
+	/* copy local directory
+	 * NOTE: local data dir has medium priority */
+	dirs[1] = g_build_filename(local, GYDP_FILE_DIR, NULL);
+
+	/* copy global directories 
+	 * NOTE: global data dirs have low priority */
 	for(guint i = 0; i < size; ++i)
-		dirs[i+1] = g_build_filename(global[i], GYDP_FILE_DIR, NULL);
+		dirs[i+2] = g_build_filename(global[i], GYDP_FILE_DIR, NULL);
 
 	return dirs;
 }
