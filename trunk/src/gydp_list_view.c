@@ -380,7 +380,7 @@ static void gydp_list_view_update(GydpListView *self) {
 	gtk_list_store_clear(GTK_LIST_STORE(store));
 
 	/* NOTICE:
-	 * setting store explicitely sends selection-changed signal */
+	 * setting store explicitly sends selection-changed signal */
 
 	const gint size = self->list->allocation.height / cell_height;
 	for(gint i = 0; i < size; ++i) {
