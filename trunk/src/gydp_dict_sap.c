@@ -268,6 +268,9 @@ static gboolean gydp_dict_sap_load(GydpDict *dict, gchar **locations, GydpLang l
 	/* set current language */
 	dict->language = lang;
 
+	/* indicate that dictionary changed */
+	gydp_dict_changed(dict);
+
 	return TRUE;
 }
 
@@ -342,5 +345,8 @@ static void gydp_dict_sap_unload(GydpDictSAP *dict) {
 
 	/* reset current dictionary */
 	GYDP_DICT(dict)->language = GYDP_LANG_NONE;
+
+	/* indicate that dictionary changed */
+	gydp_dict_changed(GYDP_DICT(dict));
 }
 

@@ -85,6 +85,10 @@ static const gchar *gydp_dict_list_data_iface_get_item(GydpListData *list_data, 
 	return GYDP_DICT_GET_CLASS(dict)->word(dict, n);
 }
 
+void gydp_dict_changed(GydpDict *dict) {
+	gydp_list_data_changed(GYDP_LIST_DATA(dict));
+}
+
 gboolean gydp_dict_load(GydpDict *dict, gchar **locations, GydpLang lang) {
 	return GYDP_DICT_GET_CLASS(dict)->load(dict, locations, lang);
 }

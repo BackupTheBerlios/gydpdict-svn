@@ -160,6 +160,10 @@ static gboolean gydp_dict_ydp_load(GydpDict *dict, gchar **locations, GydpLang l
 	default:
 		g_printerr("Language '%s' is not supported by YDP engine.\n",
 				gydp_lang_value_to_name(lang));
+
+		/* indicate that dictionary changed */
+		gydp_dict_changed(dict);
+
 		return FALSE;
 	}
 
@@ -262,11 +266,17 @@ static gboolean gydp_dict_ydp_load(GydpDict *dict, gchar **locations, GydpLang l
 			g_printerr("Error loading '%s' dictionary by YDP engine at '%s'.\n",
 					gydp_lang_value_to_nick(lang), *locations);
 
+		/* indicate that dictionary changed */
+		gydp_dict_changed(dict);
+
 		return FALSE;
 	}
 
 	/* set current language */
 	dict->language = lang;
+
+	/* indicate that dictionary changed */
+	gydp_dict_changed(dict);
 
 	return TRUE;
 }

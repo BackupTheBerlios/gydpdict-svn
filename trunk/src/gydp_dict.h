@@ -56,6 +56,7 @@ struct _GydpDictClass {
 };
 
 GType        gydp_dict_get_type();
+void         gydp_dict_changed (GydpDict *dict);
 
 /* language management */
 gboolean     gydp_dict_load    (GydpDict *dict, gchar **locations, GydpLang lang);
